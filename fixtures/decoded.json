@@ -1,0 +1,21 @@
+{
+  "note": "仅为字段对照，不替代帧边界和CRC校验",
+  "frames": [
+    {
+      "type": 1005,
+      "station": 1,
+      "coordinates": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "type": 1077,
+      "station": 1,
+      "epoch": 604799000,
+      "multipleMessage": false,
+      "issueOfDataStation": 0
+    }
+  ]
+}

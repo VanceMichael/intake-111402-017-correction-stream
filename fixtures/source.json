@@ -1,0 +1,123 @@
+{
+  "exchanges": [
+    {
+      "path": "/mountpoints",
+      "method": "GET",
+      "body": {
+        "items": [
+          {
+            "mountpoint": "LOCAL",
+            "network": "local"
+          }
+        ]
+      },
+      "requires": {},
+      "sets": {},
+      "status": 200,
+      "query": {}
+    },
+    {
+      "path": "/connect",
+      "method": "POST",
+      "body": {
+        "connectionId": "conn1"
+      },
+      "requires": {},
+      "sets": {
+        "connected": true
+      },
+      "status": 200,
+      "query": {}
+    },
+    {
+      "path": "/chunks",
+      "method": "GET",
+      "body": {
+        "items": [
+          {
+            "byteOffset": 0,
+            "data": "0wATPtABAgAAACcQAAAATiAAAAB1MG3QdQ=="
+          },
+          {
+            "byteOffset": 25,
+            "data": "0wAkQ1ABkDIAYAAAQAAAAAAAAABAAAAAQoAAAAAAAAAAAAARQAAA77W0"
+          }
+        ],
+        "eof": true
+      },
+      "requires": {
+        "connected": true
+      },
+      "sets": {},
+      "status": 200,
+      "query": {
+        "connection": "conn1"
+      }
+    }
+  ],
+  "cases": {
+    "split-and-corrupt": [
+      {
+        "path": "/chunks",
+        "method": "GET",
+        "body": {
+          "items": [
+            {
+              "byteOffset": 0,
+              "data": "0wATPg=="
+            },
+            {
+              "byteOffset": 4,
+              "data": "0AECAAAAJxAAAABOIAAAAHUwbdB10wABYmFk0wAkQ1ABkDIAYAAAQAAAAAAAAABAAAAAQoAAAAAAAAAAAAARQAAA77W0"
+            }
+          ],
+          "eof": true
+        },
+        "requires": {},
+        "sets": {},
+        "status": 200,
+        "query": {
+          "connection": "conn1"
+        }
+      }
+    ],
+    "mountpoint-change": [
+      {
+        "path": "/connect",
+        "method": "POST",
+        "body": {
+          "connectionId": "conn2"
+        },
+        "requires": {},
+        "sets": {
+          "connected": true
+        },
+        "status": 200,
+        "query": {}
+      },
+      {
+        "path": "/chunks",
+        "method": "GET",
+        "body": {
+          "items": [
+            {
+              "byteOffset": 0,
+              "data": "0wATPtABAgAAAJxAAAAATiAAAAB1MN/pWw=="
+            },
+            {
+              "byteOffset": 25,
+              "data": "0wAkQ1ABkDIAYAAAQAAAAAAAAABAAAAAQoAAAAAAAAAAAAARQAAA77W0"
+            }
+          ],
+          "eof": true
+        },
+        "requires": {},
+        "sets": {},
+        "status": 200,
+        "query": {
+          "connection": "conn2"
+        }
+      }
+    ]
+  }
+}
