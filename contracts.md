@@ -11,3 +11,7 @@ GET /mountpoints 返回 mountpoint、network；POST /connect 返回 connectionId
 ## 收存约定
 
 当前适配器 collect(client) 返回带字符串 id 的原件行。Archive.put(rows, provenance) 按实际内容和来源生成摘要，保留不同内容。该原件归档不自动决定业务当前值、引用已解析、区间完整或远端已确认；业务投影与领取状态需要各自维护。GET /records 保留兼容，不将未知状态伪造为成功。
+
+## 观测关联约定
+
+collectSession(client) 在原件行之外保留挂载点、连接与 eof。correlate(rows, {mountpoint, eof}) 只信任完整帧头加 CRC24Q 通过的帧；校验失败在有界范围内逐字节重找候选，坏字节里的偶然前导不成帧，被跳过的区间一律记为 defect 并带原因（crc-mismatch、garbage、byte-gap、offset-conflict、truncated-frame、pending-tail）。基站记录按连接加站号加坐标版本区分，站号相同不跨连接复用身份。历元按消息内时间分组，跨周按半周窗口回滚，重复帧按内容摘要去重，multipleMessage 未闭合的历元标记为不完整。历元质量：无基站定义为 unknown，有缺项（数据缺失窗口、历元不完整、基站定义晚到）为 degraded，齐全才为 ok。所有关联记录带 origin（连接、挂载点、字节偏移）作为原始领取位置。观测记录写入独立 observations 归档，GET /observations 查询；该投影同样不决定业务当前值。

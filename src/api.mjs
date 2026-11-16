@@ -1,10 +1,15 @@
 import {createServer} from 'node:http';
-export async function createApi(archive,port = 0) {
+export async function createApi(archive,port = 0,extras = {}) {
+  const routes = new Map([
+    ['/health',() => ({status:'ok'})],
+    ['/records',() => archive.list()]
+  ]);
+  if (extras.observations) routes.set('/observations',() => extras.observations.list());
   const server = createServer(async (request,response) => {
     try {
-      if (request.method !== 'GET' || !['/health','/records'].includes(request.url)) {response.writeHead(404);return response.end();}
-      const body = request.url === '/health' ? {status:'ok'} : await archive.list();
-      response.writeHead(200,{'content-type':'application/json; charset=utf-8'});response.end(JSON.stringify(body,null,2));
+      const route = request.method === 'GET' ? routes.get(request.url) : undefined;
+      if (!route) {response.writeHead(404);return response.end();}
+      response.writeHead(200,{'content-type':'application/json; charset=utf-8'});response.end(JSON.stringify(await route(),null,2));
     } catch(error) {response.writeHead(500);response.end(JSON.stringify({error:error.message}));}
   });
   await new Promise((resolve,reject) => {server.once('error',reject);server.listen(port,'0.0.0.0',resolve);});
